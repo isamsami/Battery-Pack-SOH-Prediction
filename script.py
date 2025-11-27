@@ -46,6 +46,13 @@ def predict_from_row(row_index):
 # streamlit ui
 st.title("Battery Pack State of Health Chatbot")
 user_input = st.text_input("What do you want:")
+threshold = st.slider(
+    "SOH threshold",        # label
+    min_value=0.0,          # lower bound
+    max_value=1.0,          # upper bound
+    value=0.6,              # default
+    step=0.05               # increment
+)
 
 # handle user input
 if user_input:
@@ -64,7 +71,6 @@ if user_input:
             if error:
                 st.error(error)
             else:
-                threshold = 0.6
                 status = "Healthy" if soh_pred >= threshold else "Potential Issue"
 
                 st.write(f"Predicted SOH: {soh_pred:.3f}")
@@ -79,5 +85,11 @@ if user_input:
         st.write(response.text)
 
 
+#these print fucntions are for testing purposes
 
+#print("Model type:", type(model))
+#print("Intercept:", model.intercept_)
+#print("Coefficients shape:", model.coef_.shape)
+#print("Model expects:", model.n_features_in_)
+#print("Feature columns:", feature_cols)
 
