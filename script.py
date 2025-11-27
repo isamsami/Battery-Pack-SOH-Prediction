@@ -3,23 +3,45 @@ import pickle
 import numpy as np
 import streamlit as st
 import pandas as pd
+import os
+from dotenv import load_dotenv
+import re
+
+# load environment variables
+load_dotenv()
 
 # chatbot can access excel file directly
-df = pd.read_excel(r"C:\Users\user\OneDrive\Documents\GitHub\Battery-Pack-SOH-Prediction\content\PulseBat Dataset.xlsx")
+df = pd.read_excel("PulseBat Dataset.xlsx")
 
-# liear regression model for battery state of health prediction
+
+
+# load linear regression model and rows used for battery state of health prediction
 with open("soh_battery_model.pkl", "rb") as file:
     model = pickle.load(file)
+feature_cols = [
+    "U1","U2","U3","U4","U5","U6","U7","U8","U9","U10",
+    "U11","U12","U13","U14","U15","U16","U17","U18","U19","U20"
+]
+
+
 
 # gemini api configuration
-genai.configure(api_key="AIzaSyCfb2_he_NtExQeMQWIeIRQPbQ6Dhjpfsg")
-gemini_model = genai.GenerativeModel("gemini-pro")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
-# function to help predict state of health
-def predict_soh(cell_data):
-    X = np.array(cell_data).reshape(1, -1)
-    soh_pred = model.predict(X)[0]
-    return soh_pred
+# Predict SOH from rows
+def predict_from_row(row_index):
+    if row_index < 0 or row_index >= len(df):
+        return None, "Row number out of range."
+
+    row = df.iloc[row_index] 
+    cell_data = row[feature_cols].values.reshape(1, -1) 
+    soh_pred = model.predict(cell_data)[0]
+
+    return soh_pred, None
+
+
+
 
 # streamlit ui
 st.title("Battery Pack State of Health Chatbot")
@@ -30,18 +52,32 @@ if user_input:
     # Simple keyword detection for SOH-related queries
     soh_keywords = ["soh", "battery health", "state of health", "check battery"]
     if any(keyword in user_input.lower() for keyword in soh_keywords):
-        # Example values for U1–U21
-        cell_data = [0.85, 0.9, 0.88, 0.87, 0.86, 0.84, 0.83, 0.82, 0.81,
-                     0.8, 0.79, 0.78, 0.77, 0.76, 0.75, 0.74, 0.73, 0.72,
-                     0.71, 0.7, 0.69]
-        soh_pred = predict_soh(cell_data)
 
-        threshold = 0.6
-        status = "The battery is healthy." if soh_pred >= threshold else "The battery has a problem."
+        # Look for a row number in the query
+        match = re.search(r"row\s*(\d+)", user_input.lower())
 
-        st.write(f"Predicted SOH: {soh_pred:.2f}")
-        st.write(status)
+        if match:
+            row_num = int(match.group(1)) - 1  # Convert to 0-index
+
+            soh_pred, error = predict_from_row(row_num)
+
+            if error:
+                st.error(error)
+            else:
+                threshold = 0.6
+                status = "Healthy" if soh_pred >= threshold else "Potential Issue"
+
+                st.write(f"Predicted SOH: {soh_pred:.3f}")
+                st.write(f"Status: {status}")
+
+        else:
+            st.info("Please format your question like this for better performance: Predict SOH for row 1")
+   
     else:
         # Use Gemini model for general queries
         response = gemini_model.generate_content(user_input)
         st.write(response.text)
+
+
+
+
