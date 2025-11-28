@@ -87,6 +87,7 @@ Troubleshooting
 - Gemini API errors: verify the API key in `.env` or `secrets.toml`.
 - Excel file not found: confirm `PulseBat Dataset.xlsx` is in the project root.
 - Streamlit crashes: verify your Python environment and pinned dependency versions in `requirements.txt`.
+- IMPORTANT: the model does not use all values U1-U21 only U1-U20. This may cause slight inaccuracies in prediciton 
 
 License
 -------
