@@ -45,7 +45,9 @@ def predict_from_row(row_index):
 
 # streamlit ui
 st.title("Battery Pack State of Health Chatbot")
+
 user_input = st.text_input("What do you want:")
+
 threshold = st.slider(
     "SOH threshold",        # label
     min_value=0.0,          # lower bound
@@ -53,6 +55,36 @@ threshold = st.slider(
     value=0.6,              # default
     step=0.05               # increment
 )
+
+#optional: show row date for reference
+show_row_data = st.checkbox("Show row preview")
+if show_row_data:
+    # Numeric input for row selection
+    row_num = st.number_input(
+        "Enter row number to predict SOH:",
+        min_value=1,
+        max_value=len(df),
+        step=1
+    )
+
+    st.subheader("Row Preview")
+    st.write(df.iloc[row_num][feature_cols])
+
+# optional: visualize SOH trend across dataset
+show_trend = st.checkbox("Show SOH trend chart")
+if show_trend:
+    st.subheader("SOH Trend Across Dataset")
+
+    # Predict SOH for all rows
+    all_soh = model.predict(df[feature_cols])
+
+    # Add predictions to dataframe for visualization
+    df["Predicted_SOH"] = all_soh
+
+    # Line chart of SOH values
+    st.line_chart(df["Predicted_SOH"])
+
+
 
 # handle user input
 if user_input:

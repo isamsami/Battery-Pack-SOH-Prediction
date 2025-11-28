@@ -3,4 +3,9 @@ scikit-learn
 numpy
 pandas
 matplotlib
-openai
+google-generativeai
+openpyxl
+pickle
+os
+dotenv
+re
