@@ -1,57 +1,99 @@
+# Battery Pack SOH Prediction
+
 Overview
-This project integrates a linear regression model to predict the state of health (SOH) of batteries with a chatbot interface using streamlit. The chatbot features a dataset of batteries which is used to refer to in order to provide accurate results. The chatbot also is able to answer general questions whether it be able batteries or other inquiries via Gemini AI.
+--------
+This project combines a simple linear regression model for predicting battery State of Health (SOH) with a Streamlit-based chatbot interface. The chatbot uses a local battery dataset for prediction queries and routes general questions to Gemini.
+
 Features
-SOH prediction: Using our custom linear regression model trained on battery datasets 
-Interactive Chatbot: Built with Streamlit, combining our own machine learning model for predictions and Gemini api to ask gemini general questions
-Excel uploads: The battery SOH has been documented in a .xlsx file for use already and can be be edited to add or delete battery SOH from that dataset
-Routing: SOH queries go to the linear regression model and general queries go to Gemini
-Visualization: Optional row demo and trend chart showing SOH trends are available
-Project Structure
-Venv (virtual environment)
-.env (stores API key)
-.gitignore (keeps API key hidden) 
-PulseBat Dataset.xlsx (dataset we used)
-README.md (this file)
-requirements.txt (list of required dependencies to install)
-script.py (main program where we run and execute the chatbot)
-SOHpredicter.ipynb (linear regression model)
-soh_battery_model.pkl (the model in .pkl file for use in script)
+--------
+- SOH prediction: Custom linear regression model trained on battery datasets.
+- Interactive chatbot: Streamlit interface that routes SOH queries to the local model and general queries to Gemini.
+- Excel uploads: Upload and edit a `.xlsx` file containing battery SOH records.
+- Routing: Model handles SOH-specific queries; Gemini handles general questions.
+- Visualization: Optional row demo and trend chart showing SOH over time.
 
-Installation & Usage
-Clone the Github repo
-git clone https://github.com/yourusername/battery-soh-chatbot.git
-cd battery-soh-chatbot
+Project structure
+-----------------
+- `venv/` — virtual environment (not checked in)
+- `.env` — stores API key (keep secret)
+- `.gitignore` — excludes sensitive files such as `.env`
+- `PulseBat Dataset.xlsx` — dataset used for training/evaluation
+- `README.md` — this file
+- `requirements.txt` — list of required dependencies
+- `script.py` — main Streamlit chatbot application
+- `SOHpredicter.ipynb` — notebook used to build the linear regression model
+- `soh_battery_model.pkl` — serialized model used by `script.py`
 
+Installation & usage
+--------------------
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/isamsami/Battery-Pack-SOH-Prediction.git
+   cd Battery-Pack-SOH-Prediction
+   ```
 
-Install all dependencies in requirements.txt
-pip install -r requirements.txt
- Set up API key
-Get API key from Gemini AI studio and past it in .env file
-Run the application
-streamlit run script.py
- 
+2. Create and activate a virtual environment (recommended):
+   ```bash
+   python -m venv venv
+   # macOS / Linux
+   source venv/bin/activate
+   # Windows (PowerShell)
+   .\venv\Scripts\Activate.ps1
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Set up API key:
+   - Obtain a Gemini API key from Gemini AI Studio.
+   - Add the key to a `.env` file (or `secrets.toml` for Streamlit Cloud). Example `.env`:
+     ```
+     GEMINI_API_KEY="your_api_key_here"
+     ```
+
+5. Run the application:
+   ```bash
+   streamlit run script.py
+   ```
+
 Requirements
-These requirements are also listed in requirements.txt
-Python 3.9+ (if using 3.14 may have to downgrade to 3.11 if giving you issues)
-Streamlit
-Pandas
-NumPy
-scikit‑learn
-python‑dotenv
-Google‑generativeai
-pickle
+------------
+(Also listed in `requirements.txt`)  
+- Python 3.9+ (if you encounter issues on newer versions, try 3.11)
+- streamlit
+- pandas
+- numpy
+- scikit-learn
+- python-dotenv
+- google-generativeai (Gemini client)
+- pickle (stdlib)
 
-Training Information & Notes
-Features: U1–U20 voltages(instead of the original U1-U21 values).
-Target: SOH column.
-Model: Linear Regression.
-Saved as soh_battery_model.pkl for deployment.
-Noise injection was commented out but can be used for robustness testing, but production model should be trained on clean data.
+Training information & notes
+----------------------------
+- Features used: U1–U20 voltages (note: this project used U1–U20 instead of the original U1–U21).
+- Target: `SOH` column.
+- Model: Linear Regression; saved as `soh_battery_model.pkl` for deployment.
+- Noise injection: previously commented out for robustness testing. For production, train on clean, representative data.
 
 Troubleshooting
-SOH outputs were 3.5 instead of 0.9 → Ensured target y = dataset["SOH"], not ave_SOH.
-Gemini API errors → Check .env or secrets.toml for correct API key.
-Excel file not found → Confirm PulseBat Dataset.xlsx is in the project root.
-Streamlit crashes → Verify Python environment and pinned dependencies in requirements.txt.
-Liscence
-This project is provided for educational and demonstration purposes only. It is not licensed for commercial use, redistribution, or production deployment. Feel free to study, modify, and run the code locally for learning and experimentation.
+---------------
+- SOH outputs unexpectedly large (e.g., 3.5 instead of ~0.9): ensure the target is set correctly:
+  ```python
+  y = dataset["SOH"]
+  ```
+  not `ave_SOH`.
+- Gemini API errors: verify the API key in `.env` or `secrets.toml`.
+- Excel file not found: confirm `PulseBat Dataset.xlsx` is in the project root.
+- Streamlit crashes: verify your Python environment and pinned dependency versions in `requirements.txt`.
+
+License
+-------
+This project is provided for educational and demonstration purposes only. It is not licensed for commercial use, redistribution, or production deployment. Feel free to study, modify, and run the code locally.
+
+Notes & next steps
+------------------
+- Adding a `LICENSE` file to change reuse terms.
+- Pin dependency versions in `requirements.txt` for reproducible installs.
+- Add examples/screenshots and a sample `.env.example` showing expected variables.
